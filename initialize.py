@@ -27,6 +27,10 @@ import constants as ct
 ############################################################
 load_dotenv()
 
+# Streamlit Cloudの場合、secretsから環境変数を設定
+if "OPENAI_API_KEY" in st.secrets:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
 
 ############################################################
 # 関数定義
