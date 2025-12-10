@@ -70,25 +70,26 @@ def display_product(result):
     logger.info(f"result[0].page_content[:200]: {result[0].page_content[:200]}")
     logger.info(f"result[0].metadata: {result[0].metadata}")
     
+    # page_contentを取得してBOMを削除
+    content = result[0].page_content.replace('\ufeff', '')  # BOM削除
+    
     # デバッグ用: page_contentとmetadataを画面に表示
     st.write("**デバッグ情報:**")
-    st.write(f"page_content: {result[0].page_content[:500]}")
+    st.write(f"page_content: {content[:500]}")
     st.write(f"metadata: {result[0].metadata}")
     
     # LLMレスポンスのテキストを辞書に変換
-    product_lines = result[0].page_content.split("\n")
-    logger.info(f"product_lines: {product_lines}")
+    # CSVLoaderはスペース区切りで出力するため、正規表現でパース
+    import re
     
-    # 空行とコロンを含まない行を除外
+    # "キー: 値" のパターンをすべて抽出
+    # キーは英数字とアンダースコアのみ、値は次のキーまたは文字列の終わりまで
+    pattern = r'(\w+):\s*([^:]+?)(?=\s+\w+:|$)'
+    matches = re.findall(pattern, content)
+    
     product = {}
-    for item in product_lines:
-        if item and ": " in item:
-            parts = item.split(": ", 1)  # 最大1回だけ分割（値に": "が含まれる場合に対応）
-            if len(parts) == 2:
-                # キー名の前後の空白を削除
-                key = parts[0].strip()
-                value = parts[1].strip()
-                product[key] = value
+    for key, value in matches:
+        product[key.strip()] = value.strip()
     
     logger.info(f"parsed product keys: {list(product.keys())}")
     logger.info(f"product dict: {product}")
