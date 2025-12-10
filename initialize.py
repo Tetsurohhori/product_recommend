@@ -54,18 +54,23 @@ def initialize_logger():
     """
     ログ出力の設定
     """
-    os.makedirs(ct.LOG_DIR_PATH, exist_ok=True)
-    
     logger = logging.getLogger(ct.LOGGER_NAME)
 
     if logger.hasHandlers():
         return
 
-    log_handler = TimedRotatingFileHandler(
-        os.path.join(ct.LOG_DIR_PATH, ct.LOG_FILE),
-        when="D",
-        encoding="utf8"
-    )
+    # Streamlit Cloudではファイル書き込みができないため、コンソールに出力
+    try:
+        os.makedirs(ct.LOG_DIR_PATH, exist_ok=True)
+        log_handler = TimedRotatingFileHandler(
+            os.path.join(ct.LOG_DIR_PATH, ct.LOG_FILE),
+            when="D",
+            encoding="utf8"
+        )
+    except (OSError, PermissionError):
+        # ファイル出力ができない場合はStreamHandlerを使用
+        log_handler = logging.StreamHandler()
+    
     formatter = logging.Formatter(
         f"[%(levelname)s] %(asctime)s line %(lineno)s, in %(funcName)s, session_id={st.session_state.session_id}: %(message)s"
     )
@@ -102,8 +107,18 @@ def initialize_retriever():
     # Streamlit CloudのシークレットからAPIキーを取得
     if "OPENAI_API_KEY" in st.secrets:
         api_key = st.secrets["OPENAI_API_KEY"]
+        logger.info("APIキーをst.secretsから取得しました")
     else:
         api_key = os.getenv("OPENAI_API_KEY")
+        logger.info("APIキーを環境変数から取得しました")
+    
+    # APIキーの存在確認
+    if not api_key:
+        error_msg = "OPENAI_API_KEYが設定されていません。Streamlit CloudのSecretsを確認してください。"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info(f"APIキーの先頭: {api_key[:10]}...")
     
     loader = CSVLoader(ct.RAG_SOURCE_PATH, encoding="utf-8")
     docs = loader.load()
@@ -118,10 +133,18 @@ def initialize_retriever():
     for doc in docs:
         docs_all.append(doc.page_content)
 
-    embeddings = OpenAIEmbeddings(api_key=api_key)
-    db = Chroma.from_documents(docs, embedding=embeddings)
-
-    retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K})
+    try:
+        embeddings = OpenAIEmbeddings(api_key=api_key)
+        logger.info("OpenAIEmbeddingsの初期化完了")
+        
+        db = Chroma.from_documents(docs, embedding=embeddings)
+        logger.info("Chromaデータベースの作成完了")
+        
+        retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K})
+        logger.info("Retrieverの作成完了")
+    except Exception as e:
+        logger.error(f"Retriever作成中にエラー: {str(e)}")
+        raise
 
     bm25_retriever = BM25Retriever.from_texts(
         docs_all,
