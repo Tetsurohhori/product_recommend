@@ -73,11 +73,6 @@ def display_product(result):
     # page_contentを取得してBOMを削除
     content = result[0].page_content.replace('\ufeff', '')  # BOM削除
     
-    # デバッグ用: page_contentとmetadataを画面に表示
-    st.write("**デバッグ情報:**")
-    st.write(f"page_content: {content[:500]}")
-    st.write(f"metadata: {result[0].metadata}")
-    
     # LLMレスポンスのテキストを辞書に変換
     # CSVLoaderはスペース区切りで出力するため、正規表現でパース
     import re
