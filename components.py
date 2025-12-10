@@ -95,7 +95,7 @@ def display_product(result):
     logger.info(f"product dict: {product}")
     
     # 必要なキーが全て存在するか確認
-    required_keys = ['name', 'id', 'price', 'category', 'maker', 'score', 'review_number', 'file_name', 'description', 'recommended_people']
+    required_keys = ['name', 'id', 'price', 'category', 'maker', 'score', 'review_number', 'file_name', 'description', 'recommended_people', 'stock_status']
     missing_keys = [key for key in required_keys if key not in product]
     
     if missing_keys:
@@ -110,6 +110,12 @@ def display_product(result):
             商品名：{product['name']}（商品ID: {product['id']}）\n
             価格：{product['price']}
     """)
+    
+    # 在庫状況の表示
+    if product['stock_status'] == '残りわずか':
+        st.warning(ct.STOCK_STATUS_LOW_MESSAGE)
+    elif product['stock_status'] == 'なし':
+        st.error(ct.STOCK_STATUS_OUT_MESSAGE)
 
     # 「商品カテゴリ」と「メーカー」と「ユーザー評価」
     st.code(f"""
