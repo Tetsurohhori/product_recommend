@@ -57,9 +57,40 @@ def display_product(result):
     """
     logger = logging.getLogger(ct.LOGGER_NAME)
 
+    # デバッグ: resultの内容を確認
+    logger.info(f"result type: {type(result)}")
+    logger.info(f"result length: {len(result) if hasattr(result, '__len__') else 'N/A'}")
+    
+    # resultが空でないことを確認
+    if not result or len(result) == 0:
+        logger.error("resultが空です")
+        raise ValueError("商品情報が取得できませんでした")
+    
+    logger.info(f"result[0] type: {type(result[0])}")
+    logger.info(f"result[0].page_content[:200]: {result[0].page_content[:200]}")
+    
     # LLMレスポンスのテキストを辞書に変換
     product_lines = result[0].page_content.split("\n")
-    product = {item.split(": ")[0]: item.split(": ")[1] for item in product_lines}
+    logger.info(f"product_lines: {product_lines}")
+    
+    # 空行とコロンを含まない行を除外
+    product = {}
+    for item in product_lines:
+        if item and ": " in item:
+            parts = item.split(": ", 1)  # 最大1回だけ分割（値に": "が含まれる場合に対応）
+            if len(parts) == 2:
+                product[parts[0]] = parts[1]
+    
+    logger.info(f"parsed product keys: {list(product.keys())}")
+    
+    # 必要なキーが全て存在するか確認
+    required_keys = ['name', 'id', 'price', 'category', 'maker', 'score', 'review_number', 'file_name', 'description', 'recommended_people']
+    missing_keys = [key for key in required_keys if key not in product]
+    
+    if missing_keys:
+        logger.error(f"必要なキーが不足しています: {missing_keys}")
+        logger.error(f"取得できたキー: {list(product.keys())}")
+        raise ValueError(f"商品データに不足があります: {missing_keys}")
 
     st.markdown("以下の商品をご提案いたします。")
 
