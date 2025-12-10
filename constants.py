@@ -13,12 +13,14 @@ APP_NAME = "対話型商品レコメンド生成AIアプリ"
 USER_ICON_FILE_PATH = "./images/user_icon.jpg"
 AI_ICON_FILE_PATH = "./images/ai_icon.jpg"
 ERROR_ICON = ":material/error:"
+WARNING_ICON = "⚠"
+ALERT_ICON = "⛔"
 CHAT_INPUT_HELPER_TEXT = "こちらからお探しの商品の特徴や名前を入力してください。"
 SPINNER_TEXT = "レコメンドする商品の検討中..."
 
 # 在庫状況メッセージ
-STOCK_STATUS_LOW_MESSAGE = "⚠ ご好評につき、在庫数が残りわずかです。購入をご希望の場合、お早めのご注文をおすすめいたします。"
-STOCK_STATUS_OUT_MESSAGE = "❗ 申し訳ございませんが、本商品は在庫切れとなっております。入荷までもうしばらくお待ちください。"
+STOCK_STATUS_LOW_MESSAGE = "ご好評につき、在庫数が残りわずかです。購入をご希望の場合、お早めのご注文をおすすめいたします。"
+STOCK_STATUS_OUT_MESSAGE = "申し訳ございませんが、本商品は在庫切れとなっております。入荷までもうしばらくお待ちください。"
 
 
 # ==========================================

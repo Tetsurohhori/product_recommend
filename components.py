@@ -113,9 +113,9 @@ def display_product(result):
     
     # 在庫状況の表示
     if product['stock_status'] == '残りわずか':
-        st.warning(ct.STOCK_STATUS_LOW_MESSAGE)
+        st.warning(f"{ct.WARNING_ICON} {ct.STOCK_STATUS_LOW_MESSAGE}")
     elif product['stock_status'] == 'なし':
-        st.error(ct.STOCK_STATUS_OUT_MESSAGE)
+        st.error(f"{ct.ALERT_ICON} {ct.STOCK_STATUS_OUT_MESSAGE}")
 
     # 「商品カテゴリ」と「メーカー」と「ユーザー評価」
     st.code(f"""
