@@ -68,6 +68,12 @@ def display_product(result):
     
     logger.info(f"result[0] type: {type(result[0])}")
     logger.info(f"result[0].page_content[:200]: {result[0].page_content[:200]}")
+    logger.info(f"result[0].metadata: {result[0].metadata}")
+    
+    # デバッグ用: page_contentとmetadataを画面に表示
+    st.write("**デバッグ情報:**")
+    st.write(f"page_content: {result[0].page_content[:500]}")
+    st.write(f"metadata: {result[0].metadata}")
     
     # LLMレスポンスのテキストを辞書に変換
     product_lines = result[0].page_content.split("\n")
@@ -79,9 +85,13 @@ def display_product(result):
         if item and ": " in item:
             parts = item.split(": ", 1)  # 最大1回だけ分割（値に": "が含まれる場合に対応）
             if len(parts) == 2:
-                product[parts[0]] = parts[1]
+                # キー名の前後の空白を削除
+                key = parts[0].strip()
+                value = parts[1].strip()
+                product[key] = value
     
     logger.info(f"parsed product keys: {list(product.keys())}")
+    logger.info(f"product dict: {product}")
     
     # 必要なキーが全て存在するか確認
     required_keys = ['name', 'id', 'price', 'category', 'maker', 'score', 'review_number', 'file_name', 'description', 'recommended_people']
