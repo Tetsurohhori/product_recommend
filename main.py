@@ -33,7 +33,12 @@ try:
     initialize()
 except Exception as e:
     logger.error(f"{ct.INITIALIZE_ERROR_MESSAGE}\n{e}")
+    # デバッグ用: エラーの詳細を画面に表示
+    st.error(f"初期化エラーの詳細: {type(e).__name__}: {str(e)}")
     st.error(utils.build_error_message(ct.INITIALIZE_ERROR_MESSAGE))
+    # エラーのスタックトレースも表示
+    import traceback
+    st.code(traceback.format_exc())
     st.stop()
 
 # アプリ起動時のログ出力
@@ -103,7 +108,12 @@ if chat_message:
             logger.info({"message": result})
         except Exception as e:
             logger.error(f"{ct.LLM_RESPONSE_DISP_ERROR_MESSAGE}\n{e}")
+            # デバッグ用: エラーの詳細を画面に表示
+            st.error(f"エラーの詳細: {type(e).__name__}: {str(e)}")
             st.error(utils.build_error_message(ct.LLM_RESPONSE_DISP_ERROR_MESSAGE))
+            # エラーのスタックトレースも表示
+            import traceback
+            st.code(traceback.format_exc())
             st.stop()
 
     # ==========================================
