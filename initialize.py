@@ -99,6 +99,12 @@ def initialize_retriever():
     if "retriever" in st.session_state:
         return
     
+    # Streamlit CloudのシークレットからAPIキーを取得
+    if "OPENAI_API_KEY" in st.secrets:
+        api_key = st.secrets["OPENAI_API_KEY"]
+    else:
+        api_key = os.getenv("OPENAI_API_KEY")
+    
     loader = CSVLoader(ct.RAG_SOURCE_PATH, encoding="utf-8")
     docs = loader.load()
 
@@ -112,7 +118,7 @@ def initialize_retriever():
     for doc in docs:
         docs_all.append(doc.page_content)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(api_key=api_key)
     db = Chroma.from_documents(docs, embedding=embeddings)
 
     retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K})
